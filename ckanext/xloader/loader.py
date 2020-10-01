@@ -37,7 +37,7 @@ _drop_indexes = datastore_db._drop_indexes
 MAX_COLUMN_LENGTH = 63
 
 
-def load_csv(csv_filepath, resource_id, mimetype='text/csv', logger=None):
+def load_csv(csv_filepath, resource_id, resource_alias,  mimetype='text/csv', logger=None):
     '''Loads a CSV into DataStore. Does not create the indexes.'''
 
     # use messytables to determine the header row
@@ -148,6 +148,7 @@ def load_csv(csv_filepath, resource_id, mimetype='text/csv', logger=None):
         data_dict = dict(
             resource_id=resource_id,
             fields=fields,
+            aliases=resource_alias
             )
         data_dict['records'] = None  # just create an empty table
         data_dict['force'] = True  # TODO check this - I don't fully
@@ -259,7 +260,7 @@ def create_column_indexes(fields, resource_id, logger):
     logger.info('...column indexes created.')
 
 
-def load_table(table_filepath, resource_id, mimetype='text/csv', logger=None):
+def load_table(table_filepath, resource_id, resource_alias, mimetype='text/csv', logger=None):
     '''Loads an Excel file (or other tabular data recognized by messytables)
     into Datastore and creates indexes.
 
@@ -366,7 +367,7 @@ def load_table(table_filepath, resource_id, mimetype='text/csv', logger=None):
         for i, records in enumerate(chunky(result, 250)):
             count += len(records)
             logger.info('Saving chunk {number}'.format(number=i))
-            send_resource_to_datastore(resource_id, headers_dicts, records)
+            send_resource_to_datastore(resource_id, resource_alias,  headers_dicts, records)
         logger.info('...copying done')
 
         if count:
@@ -425,13 +426,14 @@ def chunky(iterable, n):
         item = list(itertools.islice(it, n))
 
 
-def send_resource_to_datastore(resource_id, headers, records):
+def send_resource_to_datastore(resource_id, resource_alias,  headers, records):
     """
     Stores records in CKAN datastore
     """
     request = {'resource_id': resource_id,
                'fields': headers,
                'force': True,
+               'aliases': resource_alias,
                'records': records}
 
     from ckan import model

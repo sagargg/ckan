@@ -168,6 +168,7 @@ def xloader_data_into_datastore_(input, job_dict):
         fields = loader.load_csv(
             tmp_file.name,
             resource_id=resource['id'],
+            resource_alias=resource['name'],
             mimetype=resource.get('format'),
             logger=logger)
         loader.calculate_record_count(
@@ -190,6 +191,7 @@ def xloader_data_into_datastore_(input, job_dict):
         try:
             loader.load_table(tmp_file.name,
                               resource_id=resource['id'],
+                              resource_alias=resource['name'],
                               mimetype=resource.get('format'),
                               logger=logger)
         except JobError as e:
